@@ -51,26 +51,13 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.menu);
         }
         navigationView.setCheckedItem(R.id.nav_call);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                mDrawerLayout.closeDrawers();
-                return true;
-            }
+        navigationView.setNavigationItemSelectedListener(item -> {
+            mDrawerLayout.closeDrawers();
+            return true;
         });
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(v,"Data Delete",Snackbar.LENGTH_SHORT)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(MainActivity.this,"FAB Click",Toast.LENGTH_SHORT).show();
-                            }
-                        }).show();
-            }
-        });
+        fab.setOnClickListener(v -> Snackbar.make(v,"Data Delete",Snackbar.LENGTH_SHORT)
+                .setAction("Undo", v1 -> Toast.makeText(MainActivity.this,"FAB Click",Toast.LENGTH_SHORT).show()).show());
         initFruits();
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         GridLayoutManager layoutManager = new GridLayoutManager(this,2);
@@ -79,32 +66,21 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshFruits();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> refreshFruits());
     }
 
     private void refreshFruits(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initFruits();
-                        adapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            runOnUiThread(() -> {
+                initFruits();
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            });
         }).start();
     }
 
